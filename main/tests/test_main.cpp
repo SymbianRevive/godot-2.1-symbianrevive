@@ -59,7 +59,9 @@ const char **tests_get_names() {
 		"multimesh",
 		"gui",
 		"io",
+		#ifdef GLES2_ENABLED
 		"shaderlang",
+		#endif
 		"physics",
 		NULL
 	};
@@ -131,10 +133,12 @@ MainLoop *test_main(String p_test, const List<String> &p_args) {
 		return TestMultiMesh::test();
 	}
 
+	#ifdef GLES2_ENABLED
 	if (p_test == "shaderlang") {
 
 		return TestShaderLang::test();
 	}
+	#endif
 
 	if (p_test == "gd_tokenizer") {
 

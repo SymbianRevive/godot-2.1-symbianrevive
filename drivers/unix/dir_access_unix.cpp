@@ -31,7 +31,7 @@
 
 #if defined(UNIX_ENABLED) || defined(LIBC_FILEIO_ENABLED)
 
-#ifndef ANDROID_ENABLED
+#if !defined(ANDROID_ENABLED) && !defined(SYMBIAN_ENABLED)
 #include <sys/statvfs.h>
 #endif
 

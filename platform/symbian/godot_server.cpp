@@ -1,11 +1,12 @@
 /*************************************************************************/
-/*  test_shader_lang.h                                                   */
+/*  godot_server.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
 /*                      https://godotengine.org                          */
 /*************************************************************************/
-/* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2007-2019 Juan Linietsky, Ariel Manzur.                 */
+/* Copyright (c) 2014-2019 Godot Engine contributors (cf. AUTHORS.md)    */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -26,16 +27,20 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-#ifndef TEST_SHADER_LANG_H
-#define TEST_SHADER_LANG_H
+#include "main/main.h"
+#include "os_server.h"
 
-#ifdef GLES2_ENABLED
-#include "os/main_loop.h"
+int main(int argc, char *argv[]) {
 
-namespace TestShaderLang {
+	OS_Server os;
 
-MainLoop *test();
+	Error err = Main::setup(argv[0], argc - 1, &argv[1]);
+	if (err != OK)
+		return 255;
+
+	if (Main::start())
+		os.run(); // it is actually the OS that decides how to run
+	Main::cleanup();
+
+	return os.get_exit_code();
 }
-#endif
-
-#endif // TEST_SHADER_LANG_H

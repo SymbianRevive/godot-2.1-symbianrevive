@@ -19,7 +19,13 @@ if (env["platform"] == "windows"):
     SConscript("wasapi/SCsub")
 
 # Graphics drivers
-SConscript('gles2/SCsub')
+if (env["platform"] == "symbian"):
+    if (env["s60v3"] == 'no'):
+        SConscript('gles1/SCsub')
+    else:
+        SConscript('gles2/SCsub')
+else:
+    SConscript('gles2/SCsub')
 SConscript('gl_context/SCsub')
 
 # Core dependencies

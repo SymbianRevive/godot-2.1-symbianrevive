@@ -1,9 +1,9 @@
 /*************************************************************************/
-/*  test_shader_lang.h                                                   */
+/*  audio_driver_symbian.h                                               */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
-/*                      https://godotengine.org                          */
+/*                    http://www.godotengine.org                         */
 /*************************************************************************/
 /* Copyright (c) 2007-2016 Juan Linietsky, Ariel Manzur.                 */
 /*                                                                       */
@@ -26,16 +26,72 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
-#ifndef TEST_SHADER_LANG_H
-#define TEST_SHADER_LANG_H
+#ifndef AUDIO_DRIVER_MDA_H
+#define AUDIO_DRIVER_MDA_H
 
-#ifdef GLES2_ENABLED
-#include "os/main_loop.h"
+#include "servers/audio/audio_server_sw.h"
 
-namespace TestShaderLang {
+#include <mdaaudiosampleeditor.h>
+#include <mdaaudiooutputstream.h>
+#include <mda/common/audio.h>
+#include <mmf/common/mmfutilities.h>
 
-MainLoop *test();
-}
+struct AudioDriverMDA : public AudioDriverSW, MMdaAudioOutputStreamCallback {
+	virtual const char *get_name() const;
+
+	virtual Error init();
+	virtual void start();
+	virtual int get_mix_rate() const;
+	virtual OutputFormat get_output_format() const;
+
+	virtual void lock();
+	virtual void unlock();
+	virtual void finish();
+
+	AudioDriverMDA();
+	~AudioDriverMDA();
+
+public:
+  void MaoscOpenComplete(TInt aError) override;
+
+  void MaoscBufferCopied(TInt aError, const TDesC8& aBuffer) override;
+  
+  void MaoscPlayComplete(TInt aError) override;
+
+private:
+  void RequestSound();
+
+private:
+  enum TStatus {
+    ENotReady,
+    EOpen,
+    ESetVolume
+  };
+
+  enum { KBufferMaxFrames = 10 };
+
+	int32_t* samples_in;
+	int16_t* samples_out;
+	int id;
+
+	int buffer_size;
+
+	unsigned int mix_rate;
+	OutputFormat output_format;
+
+	int channels;
+
+	bool active;
+	bool pcm_open;
+
+  TPtrC8 iSoundBufferPtr;
+
+  TInt iVolume;
+  TUint iVolumeStep;
+
+  TMdaAudioDataSettings iStreamSettings;
+  CMdaAudioOutputStream* iOutputStream;
+  TStatus iOutputStatus;
+};
+
 #endif
-
-#endif // TEST_SHADER_LANG_H

@@ -28,6 +28,8 @@
 /*************************************************************************/
 #include "test_shader_lang.h"
 
+#ifdef GLES2_ENABLED
+
 #include "os/file_access.h"
 #include "os/main_loop.h"
 #include "os/os.h"
@@ -340,3 +342,4 @@ MainLoop *test() {
 	return NULL;
 }
 } // namespace TestShaderLang
+#endif

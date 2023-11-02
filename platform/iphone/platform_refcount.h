@@ -29,7 +29,7 @@
 /*************************************************************************/
 #include "safe_refcount.h"
 
-#ifdef IPHONE_ENABLED
+#if defined(IPHONE_ENABLED)
 
 #define REFCOUNT_T int
 #define REFCOUNT_GET_T int const volatile &
@@ -42,6 +42,18 @@ inline int atomic_conditional_increment(volatile int *v) {
 
 inline int atomic_decrement(volatile int *v) {
 	return OSAtomicDecrement32(v);
+}
+
+#elif defined(SYMBIAN_ENABLED)
+
+#include <e32atomics.h>
+
+inline int atomic_conditional_increment(volatile int *v) {
+	return (*v == 0) ? 0 : __e32_atomic_add_rlx32(v, 1);
+}
+
+inline int atomic_decrement(volatile int *v) {
+	return __e32_atomic_add_rlx32(v, -1);
 }
 
 #endif

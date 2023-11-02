@@ -55,7 +55,9 @@
 #include "globals.h"
 #include <assert.h>
 #include <errno.h>
+#ifndef __SYMBIAN32__
 #include <poll.h>
+#endif
 #include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -197,6 +199,7 @@ void OS_Unix::alert(const String &p_alert, const String &p_title) {
 
 static int has_data(FILE *p_fd, int timeout_usec = 0) {
 
+#if 0
 	fd_set readset;
 	int fd = fileno(p_fd);
 	FD_ZERO(&readset);
@@ -204,6 +207,7 @@ static int has_data(FILE *p_fd, int timeout_usec = 0) {
 	timeval time;
 	time.tv_sec = 0;
 	time.tv_usec = timeout_usec;
+#endif
 	int res = 0; //select(fd + 1, &readset, NULL, NULL, &time);
 	return res > 0;
 };
@@ -332,6 +336,7 @@ uint64_t OS_Unix::get_ticks_usec() const {
 
 Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr) {
 
+#ifndef SYMBIAN_ENABLED
 	if (p_blocking && r_pipe) {
 
 		String argss;
@@ -408,10 +413,14 @@ Error OS_Unix::execute(const String &p_path, const List<String> &p_arguments, bo
 	}
 
 	return OK;
+#else
+	return ERR_CANT_FORK;
+#endif
 }
 
 Error OS_Unix::kill(const ProcessID &p_pid) {
 
+#ifndef SYMBIAN_ENABLED
 	int ret = ::kill(p_pid, SIGKILL);
 	if (!ret) {
 		//avoid zombie process
@@ -419,6 +428,9 @@ Error OS_Unix::kill(const ProcessID &p_pid) {
 		::waitpid(p_pid, &st, 0);
 	}
 	return ret ? ERR_INVALID_PARAMETER : OK;
+#else
+    return ERR_INVALID_PARAMETER;
+#endif
 }
 
 int OS_Unix::get_process_ID() const {

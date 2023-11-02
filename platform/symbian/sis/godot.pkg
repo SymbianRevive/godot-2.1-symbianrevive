@@ -1,0 +1,16 @@
+&EN
+
+%{"godot"}
+:"godot"
+
+#{"godot"},(0xA0060D07), 1,0,0
+
+[0x102032BE], 0, 0, 0, {"Series60ProductID"}
+[0x102752AE], 0, 0, 0, {"Series60ProductID"}
+[0x101F7961], 0, 0, 0, {"Series60ProductID"}
+[0x1028315F], 0, 0, 0, {"Series60ProductID"}
+
+"bin/godot.exe" -		"!:\sys\bin\godot.exe"
+"bin/godot_reg.rsc" -   "!:\private\10003a3f\import\apps\godot_reg.rsc"
+"bin/godot.rsc" -   "!:\resource\apps\godot.rsc"
+"bin/godot_icon.mif" -   "!:\resource\apps\godot_icon.mif"

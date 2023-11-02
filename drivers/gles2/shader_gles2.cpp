@@ -122,6 +122,8 @@ bool ShaderGLES2::bind() {
 
 	ERR_FAIL_COND_V(!version, false);
 
+	//ERR_FAIL_COND_V(!glIsProgram(version->id), false);
+
 	glUseProgram(version->id);
 
 	DEBUG_TEST_ERROR("Use Program");
@@ -258,6 +260,8 @@ ShaderGLES2::Version *ShaderGLES2::get_current_version() {
 	Vector<const char *> strings;
 #ifdef GLEW_ENABLED
 	strings.push_back("#version 120\n"); //ATI requieres this before anything
+#else
+	strings.push_back("#version 100\n");
 #endif
 	int define_line_ofs = 1;
 
@@ -348,6 +352,8 @@ ShaderGLES2::Version *ShaderGLES2::get_current_version() {
 	v.vert_id = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(v.vert_id, strings.size(), &strings[0], NULL);
 	glCompileShader(v.vert_id);
+
+	DEBUG_TEST_ERROR("Compile vert");
 
 	GLint status;
 
@@ -440,6 +446,8 @@ ShaderGLES2::Version *ShaderGLES2::get_current_version() {
 	glShaderSource(v.frag_id, strings.size(), &strings[0], NULL);
 	glCompileShader(v.frag_id);
 
+	DEBUG_TEST_ERROR("Compile frag");
+
 	glGetShaderiv(v.frag_id, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
 		// error compiling
@@ -482,13 +490,19 @@ ShaderGLES2::Version *ShaderGLES2::get_current_version() {
 	glAttachShader(v.id, v.frag_id);
 	glAttachShader(v.id, v.vert_id);
 
+	DEBUG_TEST_ERROR("Attach");
+
 	// bind attributes before linking
 	for (int i = 0; i < attribute_pair_count; i++) {
 
 		glBindAttribLocation(v.id, attribute_pairs[i].index, attribute_pairs[i].name);
 	}
 
+	DEBUG_TEST_ERROR("Bind Attrib");
+
 	glLinkProgram(v.id);
+
+	DEBUG_TEST_ERROR("Link Program");
 
 	glGetProgramiv(v.id, GL_LINK_STATUS, &status);
 

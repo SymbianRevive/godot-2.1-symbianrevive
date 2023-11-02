@@ -14,6 +14,7 @@
 
 static size_t _set_sockaddr(struct sockaddr_storage *p_addr, const IP_Address &p_ip, int p_port, IP::Type p_sock_type = IP::TYPE_ANY) {
 
+#ifndef SYMBIAN_ENABLED
 	memset(p_addr, 0, sizeof(struct sockaddr_storage));
 
 	ERR_FAIL_COND_V(!p_ip.is_valid(), 0);
@@ -42,10 +43,14 @@ static size_t _set_sockaddr(struct sockaddr_storage *p_addr, const IP_Address &p
 		copymem(&addr4->sin_addr.s_addr, p_ip.get_ipv4(), 16);
 		return sizeof(sockaddr_in);
 	};
+#else
+    return ERR_INVALID_PARAMETER;
+#endif
 };
 
 static size_t _set_listen_sockaddr(struct sockaddr_storage *p_addr, int p_port, IP::Type p_sock_type, const IP_Address p_bind_address) {
 
+#ifndef SYMBIAN_ENABLED
 	memset(p_addr, 0, sizeof(struct sockaddr_storage));
 	if (p_sock_type == IP::TYPE_IPV4) {
 		struct sockaddr_in *addr4 = (struct sockaddr_in *)p_addr;
@@ -69,10 +74,14 @@ static size_t _set_listen_sockaddr(struct sockaddr_storage *p_addr, int p_port, 
 		}
 		return sizeof(sockaddr_in6);
 	};
+#else
+    return ERR_INVALID_PARAMETER;
+#endif
 };
 
 static int _socket_create(IP::Type &p_type, int type, int protocol) {
 
+#ifndef SYMBIAN_ENABLED
 	ERR_FAIL_COND_V(p_type > IP::TYPE_ANY || p_type < IP::TYPE_NONE, ERR_INVALID_PARAMETER);
 
 	int family = p_type == IP::TYPE_IPV4 ? AF_INET : AF_INET6;
@@ -97,10 +106,14 @@ static int _socket_create(IP::Type &p_type, int type, int protocol) {
 	}
 
 	return sockfd;
+#else
+    return ERR_INVALID_PARAMETER;
+#endif
 }
 
 static void _set_ip_addr_port(IP_Address &r_ip, int &r_port, struct sockaddr_storage *p_addr) {
 
+#ifndef SYMBIAN_ENABLED
 	if (p_addr->ss_family == AF_INET) {
 
 		struct sockaddr_in *addr4 = (struct sockaddr_in *)p_addr;
@@ -115,6 +128,7 @@ static void _set_ip_addr_port(IP_Address &r_ip, int &r_port, struct sockaddr_sto
 
 		r_port = ntohs(addr6->sin6_port);
 	};
+#endif
 };
 
 #endif

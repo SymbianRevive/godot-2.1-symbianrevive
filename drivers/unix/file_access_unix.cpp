@@ -36,7 +36,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifndef ANDROID_ENABLED
+#if !defined(ANDROID_ENABLED) && !defined(SYMBIAN_ENABLED)
 #include <sys/statvfs.h>
 #endif
 

@@ -1,0 +1,36 @@
+= Godot 2.1.6-stable for Symbian S60
+
+Godot 2.1.6-stable ported to Symbian OS (S\^1, S\^3).
+
+== Supported SDK platforms
+
+- S60 5th Edition SDK (OpenGL ES 1.0; no threads)
+- Nokia Symbian Belle SDK (OpenGL ES 2.0)
+
+== Building
+
+Microsoft Windows *on actual hardware* is required (confirmed to work on Windows 11 22H2 build 22621.2283; Windows 7 may be preferred for extra compatibility).
+
+1. Install the desired official Nokia/Symbian SDK
+2. Install latest MSYS
+3. Build and install GCC 12.1.0 and binutils 2.35; those are the latest known good versions that support Symbian.
+4. `scons platform=symbian arch=arm tools=false CXX=arm-none-symbianelf-g++ CC=arm-none-symbianelf-gcc AR=arm-none-symbianelf-ar split_libmodules=yes module_theora_enabled=no module_upnp_enabled=no module_webp_enabled=no module_websocket_enabled=no module_webm_enabled=no target=release module_squish_enabled=no module_openssl_enabled=no module_opus_enabled=no module_vorbis_enabled=no s60v3={yes,no} epocroot=${EPOCROOT} target=release`; replace `s60v3=...` with `yes`/`no` depending on the version of the SDK.
+5. The resulting SISX is placed in `bin/godot.sisx`
+
+== Debugging on real hardware
+
+1. Install Carbide.{cpp} on your PC
+2. Install Public CODA or TRK (depending on the OS version) on your device
+3. Create a Carbide dummy (empty) Carbide project
+4. Add a Debug Configuration for "Symbian OS Device". Set the "remote process..." to `C\sys\bin\godot.exe` (where `C` is the install disk; notice the absence of a colon)
+5. Add source mappings to the Configuration
+6. Launch CODA (or TRK) on your device and connect it over USB
+7. Install the SISX package
+8. Open the "Debug" perspective in Carbide
+9. Launch the Debug Configuration in Carbide
+10. Pro tip #1: You can peek GPR's by bringing up the "Registers" window
+11. Pro tip #2: When decompiling your application in IDA, use the `.exe.sym` file, as it contains debug symbols
+
+== Credits
+
+* technicaljicama - GLES1 renderer port (from godot-psp)

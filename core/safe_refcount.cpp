@@ -87,6 +87,101 @@ static _ALWAYS_INLINE_ T _atomic_exchange_if_greater_impl(register T *pw, regist
 	return *pw;
 }
 
+#elif defined(SYMBIAN_ENABLED)
+
+#include <type_traits>
+#include <e32atomics.h>
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 1, T>::type 
+atomic_add(volatile T *pw, int i) { return __e32_atomic_add_rlx8(pw, i); }
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 2, T>::type 
+atomic_add(volatile T *pw, int i) { return __e32_atomic_add_rlx16(pw, i); }
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 4, T>::type 
+atomic_add(volatile T *pw, int i) { return __e32_atomic_add_rlx32(pw, i); }
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 8, T>::type 
+atomic_add(volatile T *pw, int i) { return __e32_atomic_add_rlx64(pw, i); }
+
+// ====
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 1, bool>::type 
+atomic_cas(volatile T *pw, T *p, T v) { return __e32_atomic_cas_rlx8(pw, p, v); }
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 2, bool>::type 
+atomic_cas(volatile T *pw, T *p, T v) { return __e32_atomic_cas_rlx16(pw, p, v); }
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 4, bool>::type 
+atomic_cas(volatile T *pw, T *p, T v) { return __e32_atomic_cas_rlx32(pw, p, v); }
+
+template <class T>
+constexpr inline
+typename std::enable_if<sizeof(T) == 8, bool>::type 
+atomic_cas(volatile T *pw, T *p, T v) { return __e32_atomic_cas_rlx64(pw, p, v); }
+
+template <class T>
+static _ALWAYS_INLINE_ T _atomic_conditional_increment_impl(volatile T *pw) {
+
+	while (true) {
+		T tmp = static_cast<T const volatile &>(*pw);
+		if (tmp == 0)
+			return 0; // if zero, can't add to it anymore
+		if (atomic_cas<T>(pw, &tmp, tmp + 1))
+			return tmp + 1;
+	}
+}
+
+template <class T>
+static _ALWAYS_INLINE_ T _atomic_decrement_impl(volatile T *pw) {
+
+	return atomic_add<T>(pw, -1);
+}
+
+template <class T>
+static _ALWAYS_INLINE_ T _atomic_increment_impl(volatile T *pw) {
+
+	return atomic_add<T>(pw, 1);
+}
+
+template <class T, class V>
+static _ALWAYS_INLINE_ T _atomic_sub_impl(volatile T *pw, volatile V val) {
+
+	return atomic_add<T>(pw, -val);
+}
+
+template <class T, class V>
+static _ALWAYS_INLINE_ T _atomic_add_impl(volatile T *pw, volatile V val) {
+
+	return atomic_add<T>(pw, val);
+}
+
+template <class T, class V>
+static _ALWAYS_INLINE_ T _atomic_exchange_if_greater_impl(volatile T *pw, volatile V val) {
+
+	while (true) {
+		T tmp = static_cast<T const volatile &>(*pw);
+		if (tmp >= val)
+			return tmp; // already greater, or equal
+		if (atomic_cas<T>(pw, &tmp, val) == tmp)
+			return val;
+	}
+}
+
 #elif defined(__GNUC__)
 
 /* Implementation for GCC & Clang */

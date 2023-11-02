@@ -32,7 +32,9 @@
 
 #ifdef UNIX_ENABLED
 
+#ifndef SYMBIAN_ENABLED
 #include <poll.h>
+#endif
 
 #include <errno.h>
 #include <netdb.h>
@@ -126,6 +128,7 @@ Error TCPServerPosix::listen(uint16_t p_port, const IP_Address p_bind_address) {
 
 bool TCPServerPosix::is_connection_available() const {
 
+#ifndef SYMBIAN_ENABLED
 	if (listen_sockfd == -1) {
 		return false;
 	};
@@ -143,6 +146,10 @@ bool TCPServerPosix::is_connection_available() const {
 	};
 
 	return false;
+#else
+    //abort();
+    return false;
+#endif
 };
 
 Ref<StreamPeerTCP> TCPServerPosix::take_connection() {

@@ -33,7 +33,9 @@
 
 #include <errno.h>
 #include <netdb.h>
+#ifndef SYMBIAN_ENABLED
 #include <poll.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,8 +58,6 @@
 #include <arpa/inet.h>
 #endif
 
-#include <netinet/tcp.h>
-
 #if defined(OSX_ENABLED) || defined(IPHONE_ENABLED)
 #define MSG_NOSIGNAL SO_NOSIGPIPE
 #endif
@@ -76,6 +76,7 @@ void StreamPeerTCPPosix::make_default() {
 
 Error StreamPeerTCPPosix::_block(int p_sockfd, bool p_read, bool p_write) const {
 
+#ifndef SYMBIAN_ENABLED
 	struct pollfd pfd;
 	pfd.fd = p_sockfd;
 	pfd.events = 0;
@@ -87,6 +88,9 @@ Error StreamPeerTCPPosix::_block(int p_sockfd, bool p_read, bool p_write) const 
 
 	int ret = poll(&pfd, 1, -1);
 	return ret < 0 ? FAILED : OK;
+#else
+    return FAILED;
+#endif
 };
 
 Error StreamPeerTCPPosix::_poll_connection() const {

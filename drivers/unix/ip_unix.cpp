@@ -62,7 +62,9 @@
 #ifdef __FreeBSD__
 #include <sys/types.h>
 #endif
+#ifndef SYMBIAN_ENABLED
 #include <ifaddrs.h>
+#endif
 #endif
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -74,6 +76,7 @@
 static IP_Address _sockaddr2ip(struct sockaddr *p_addr) {
 
 	IP_Address ip;
+#ifndef SYMBIAN_ENABLED
 	if (p_addr->sa_family == AF_INET) {
 		struct sockaddr_in *addr = (struct sockaddr_in *)p_addr;
 		ip.set_ipv4((uint8_t *)&(addr->sin_addr));
@@ -81,6 +84,7 @@ static IP_Address _sockaddr2ip(struct sockaddr *p_addr) {
 		struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)p_addr;
 		ip.set_ipv6(addr6->sin6_addr.s6_addr);
 	};
+#endif
 
 	return ip;
 };
@@ -218,6 +222,7 @@ void IP_Unix::get_local_addresses(List<IP_Address> *r_addresses) const {
 
 void IP_Unix::get_local_addresses(List<IP_Address> *r_addresses) const {
 
+#ifndef SYMBIAN_ENABLED
 	struct ifaddrs *ifAddrStruct = NULL;
 	struct ifaddrs *ifa = NULL;
 	int family;
@@ -238,6 +243,7 @@ void IP_Unix::get_local_addresses(List<IP_Address> *r_addresses) const {
 	}
 
 	if (ifAddrStruct != NULL) freeifaddrs(ifAddrStruct);
+#endif
 }
 #endif
 
